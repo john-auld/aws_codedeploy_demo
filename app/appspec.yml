@@ -1,0 +1,35 @@
+version: 0.0
+os: linux
+files:
+  # https://docs.aws.amazon.com/codedeploy/latest/userguide/reference-appspec-file-structure-permissions.html
+  - source: /test.txt
+    destination: /tmp/
+hooks:
+  # https://docs.aws.amazon.com/codedeploy/latest/userguide/reference-appspec-file-structure-hooks.html
+  ApplicationStop:
+    - location: scripts/stop_server.sh
+      timeout: 300
+      runas: root
+  # Install is the step run by AWS to copy the application.zip file onto the Instance.
+  BeforeInstall:
+    - location: scripts/install_dependencies.sh
+      timeout: 300
+      runas: root
+  AfterInstall:
+    - location: scripts/after_install.sh
+      timeout: 300
+      runas: root
+  ApplicationStart:
+    - location: scripts/stop_server.sh
+      timeout: 300
+      runas: root
+    - location: scripts/do_stuff.sh
+      timeout: 300
+      runas: root
+    - location: scripts/start_server.sh
+      timeout: 300
+      runas: root
+  ValidateService:
+    - location: scripts/basic_health_check.sh
+      timeout: 300
+      runas: root
